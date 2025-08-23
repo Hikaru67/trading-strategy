@@ -1,0 +1,15 @@
+# Binance API Configuration
+BINANCE_API_KEY=your_binance_api_key_here
+BINANCE_SECRET_KEY=your_binance_secret_key_here
+
+# Trading Configuration
+# Set to True for testing with sandbox
+SANDBOX_MODE=False
+
+# Risk Management
+MAX_RISK_PER_TRADE=0.02
+MAX_DAILY_RISK=0.05
+MAX_OPEN_TRADES=3
+
+# Logging
+LOG_LEVEL=INFO
