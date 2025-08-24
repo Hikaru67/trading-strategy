@@ -27,11 +27,10 @@ class AdvancedStrategies:
         if (current_price > senkou_a and current_price > senkou_b and
             tenkan > kijun):
             
-            atr = self.indicators.calculate_atr(data['high'], data['low'], data['close'], 14).iloc[-1]
-            stop_loss = current_price - (atr * 2)
             entry_price = current_price
-            risk = entry_price - stop_loss
-            take_profit = entry_price + (risk * 3)
+            # Use fixed dollar stop loss for consistent 1R
+            stop_loss = entry_price - 10  # $10 below entry (1R = $10 for $1000 balance)
+            take_profit = entry_price + 30  # 1:3 RR
             
             return {
                 'signal': 'long',
@@ -40,6 +39,7 @@ class AdvancedStrategies:
                 'take_profit': take_profit,
                 'strategy': 'ichimoku_strategy',
                 'confidence': 0.7,
+                'account_risk_percent': 1.0,  # Risk 1% of initial balance
                 'indicators': {
                     'ichimoku_tenkan': tenkan,
                     'ichimoku_kijun': kijun,
@@ -53,11 +53,10 @@ class AdvancedStrategies:
         elif (current_price < senkou_a and current_price < senkou_b and
               tenkan < kijun):
             
-            atr = self.indicators.calculate_atr(data['high'], data['low'], data['close'], 14).iloc[-1]
-            stop_loss = current_price + (atr * 2)
             entry_price = current_price
-            risk = stop_loss - entry_price
-            take_profit = entry_price - (risk * 3)
+            # Use fixed dollar stop loss for consistent 1R
+            stop_loss = entry_price + 10  # $10 above entry (1R = $10 for $1000 balance)
+            take_profit = entry_price - 30  # 1:3 RR
             
             return {
                 'signal': 'short',
@@ -66,6 +65,7 @@ class AdvancedStrategies:
                 'take_profit': take_profit,
                 'strategy': 'ichimoku_strategy',
                 'confidence': 0.7,
+                'account_risk_percent': 1.0,  # Risk 1% of initial balance
                 'indicators': {
                     'ichimoku_tenkan': tenkan,
                     'ichimoku_kijun': kijun,
@@ -111,7 +111,13 @@ class AdvancedStrategies:
                 'stop_loss': stop_loss,
                 'take_profit': take_profit,
                 'strategy': 'vsa_obv_strategy',
-                'confidence': 0.8
+                'confidence': 0.8,
+                'indicators': {
+                    'vsa_accumulation': True,
+                    'obv_trend': 'rising',
+                    'volume_multiplier': current_volume / avg_volume,
+                    'timeframe': timeframe
+                }
             }
         
         # Short signal: Distribution + falling OBV
@@ -131,7 +137,13 @@ class AdvancedStrategies:
                 'stop_loss': stop_loss,
                 'take_profit': take_profit,
                 'strategy': 'vsa_obv_strategy',
-                'confidence': 0.8
+                'confidence': 0.8,
+                'indicators': {
+                    'vsa_distribution': True,
+                    'obv_trend': 'falling',
+                    'volume_multiplier': current_volume / avg_volume,
+                    'timeframe': timeframe
+                }
             }
         
         return {'signal': 'no_signal', 'reason': 'No VSA+OBV signal'}
@@ -173,7 +185,15 @@ class AdvancedStrategies:
                 'stop_loss': stop_loss,
                 'take_profit': take_profit,
                 'strategy': 'multi_indicator_strategy',
-                'confidence': 0.8
+                'confidence': 0.8,
+                'indicators': {
+                    'ema_20': current_ema_20,
+                    'ema_50': current_ema_50,
+                    'rsi': current_rsi,
+                    'macd': current_macd,
+                    'macd_signal': current_signal,
+                    'timeframe': timeframe
+                }
             }
         
         # Short signal: Multiple confirmations
@@ -193,7 +213,15 @@ class AdvancedStrategies:
                 'stop_loss': stop_loss,
                 'take_profit': take_profit,
                 'strategy': 'multi_indicator_strategy',
-                'confidence': 0.8
+                'confidence': 0.8,
+                'indicators': {
+                    'ema_20': current_ema_20,
+                    'ema_50': current_ema_50,
+                    'rsi': current_rsi,
+                    'macd': current_macd,
+                    'macd_signal': current_signal,
+                    'timeframe': timeframe
+                }
             }
         
         return {'signal': 'no_signal', 'reason': 'No multi-indicator signal'}

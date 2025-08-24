@@ -1,0 +1,72 @@
+[
+  {
+    "time": "2025-08-24T14:38:27.203462",
+    "balance": 1000,
+    "savings_account": 0.0,
+    "total_wealth": 1000.0,
+    "open_position": false
+  },
+  {
+    "time": "2025-08-24T14:38:27.396672",
+    "balance": 1000,
+    "savings_account": 0.0,
+    "total_wealth": 1000.0,
+    "open_position": false
+  },
+  {
+    "time": "2025-08-24T14:38:27.581236",
+    "balance": 1000,
+    "savings_account": 0.0,
+    "total_wealth": 1000.0,
+    "open_position": false
+  },
+  {
+    "time": "2025-08-24T14:38:27.774483",
+    "balance": 1000,
+    "savings_account": 0.0,
+    "total_wealth": 1000.0,
+    "open_position": false
+  },
+  {
+    "time": "2025-08-24T14:38:27.961922",
+    "balance": 1000,
+    "savings_account": 0.0,
+    "total_wealth": 1000.0,
+    "open_position": false
+  },
+  {
+    "time": "2025-08-24T14:47:51.032865",
+    "balance": 1000,
+    "savings_account": 0.0,
+    "total_wealth": 1000.0,
+    "open_position": false
+  },
+  {
+    "time": "2025-08-24T14:48:11.732714",
+    "balance": 1000,
+    "savings_account": 0.0,
+    "total_wealth": 1000.0,
+    "open_position": false
+  },
+  {
+    "time": "2025-08-24T14:48:23.084234",
+    "balance": 1000,
+    "savings_account": 0.0,
+    "total_wealth": 1000.0,
+    "open_position": false
+  },
+  {
+    "time": "2025-08-24T14:53:23.173403",
+    "balance": 1000,
+    "savings_account": 0.0,
+    "total_wealth": 1000.0,
+    "open_position": false
+  },
+  {
+    "time": "2025-08-24T14:58:23.231261",
+    "balance": 1000,
+    "savings_account": 0.0,
+    "total_wealth": 1000.0,
+    "open_position": false
+  }
+]

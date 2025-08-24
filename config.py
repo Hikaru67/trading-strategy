@@ -9,7 +9,24 @@ class TradingConfig:
     API_SECRET = os.getenv('BINANCE_SECRET_KEY')
     
     # Trading Parameters
-    SYMBOL = 'BTCUSDT'
+    DEFAULT_SYMBOL = 'BTCUSDT'
+    SUPPORTED_SYMBOLS = {
+        'BTCUSDT': {
+            'name': 'Bitcoin',
+            'fee_type': 'fixed',  # Fixed fee per BTC
+            'fee_per_btc': 16.0,  # $16 per 1 BTC
+            'min_price_precision': 2,
+            'min_qty_precision': 6
+        },
+        'SUIUSDT': {
+            'name': 'Sui',
+            'fee_type': 'percentage',  # Percentage fee
+            'fee_rate': 0.0,    # 0% trading fee (no fees currently)
+            'min_price_precision': 4,
+            'min_qty_precision': 2
+        }
+    }
+    
     TIMEFRAMES = {
         '1m': '1m',
         '3m': '3m', 
@@ -31,8 +48,11 @@ class TradingConfig:
     DEFAULT_POSITION_SIZE = 0.01  # 1% of balance
     MAX_POSITION_SIZE = 0.05      # 5% of balance
     
-    # Trading Fees
-    TRADING_FEE_RATE = 0.001      # 0.1% trading fee
+    # Trading Fees (deprecated - use symbol-specific fee rates)
+    TRADING_FEE_RATE = 0.001      # 0.1% trading fee (default)
+    
+    # Fee Control
+    NO_FEES_MODE = False          # Set to True to disable all trading fees
     
     # Take Profit & Stop Loss - Optimized for 1H timeframe with 1:3 RR
     TP_PERCENTAGES = {
@@ -161,3 +181,33 @@ class TradingConfig:
             'stoch_overbought': 75
         }
     }
+    
+    @classmethod
+    def get_symbol_info(cls, symbol):
+        """Get trading information for a specific symbol"""
+        return cls.SUPPORTED_SYMBOLS.get(symbol.upper(), cls.SUPPORTED_SYMBOLS[cls.DEFAULT_SYMBOL])
+    
+    @classmethod
+    def get_trading_fee_rate(cls, symbol):
+        """Get trading fee rate for a specific symbol (deprecated - use get_trading_fee_info)"""
+        symbol_info = cls.get_symbol_info(symbol)
+        return symbol_info.get('fee_rate', cls.TRADING_FEE_RATE)
+    
+    @classmethod
+    def get_trading_fee_info(cls, symbol, no_fees=False):
+        """Get trading fee information for a specific symbol"""
+        symbol_info = cls.get_symbol_info(symbol)
+        
+        # If no_fees mode is enabled, return zero fees
+        if no_fees or cls.NO_FEES_MODE:
+            return {
+                'fee_type': 'percentage',
+                'fee_rate': 0.0,
+                'fee_per_btc': 0.0
+            }
+        
+        return {
+            'fee_type': symbol_info.get('fee_type', 'percentage'),
+            'fee_rate': symbol_info.get('fee_rate', cls.TRADING_FEE_RATE),
+            'fee_per_btc': symbol_info.get('fee_per_btc', 0.0)
+        }

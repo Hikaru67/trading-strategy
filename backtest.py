@@ -30,7 +30,7 @@ class Backtester:
             'metrics': {}
         }
     
-    def run_backtest(self, symbol, start_date, end_date, initial_balance=10000, strategy_name='all', timeframe='1h', enable_scaling=False, scaling_threshold=1.0, scaling_multiplier=2.0):
+    def run_backtest(self, symbol, start_date, end_date, initial_balance=10000, strategy_name='all', timeframe='1h', enable_scaling=False, scaling_threshold=1.0, scaling_multiplier=2.0, no_fees=False, reward_ratio=3.0):
         """
         Run backtest on historical data
         
@@ -53,8 +53,12 @@ class Backtester:
             logging.error("No historical data available")
             return None
         
+        # Get trading fee info for this symbol
+        symbol_trading_fee_info = self.config.get_trading_fee_info(symbol, no_fees)
+        
         # Initialize backtest variables
         balance = initial_balance
+        savings_account = 0.0  # Initialize savings account
         position = None
         trades = []
         equity_curve = []
@@ -104,7 +108,7 @@ class Backtester:
                         exit_price = current_price  # fallback
                     
                     # Close position with exact exit price
-                    pnl = self._calculate_pnl(position, exit_price)
+                    pnl = self._calculate_pnl(position, exit_price, symbol_trading_fee_info)
                     balance += pnl
                     
                     # Check if account is blown (balance <= 0)
@@ -161,6 +165,20 @@ class Backtester:
                     }
                     trades.append(trade)
                     
+                    # Apply savings balance logic (save 10% of profit from winning trades when account is profitable)
+                    if pnl > 0 and balance > initial_balance:
+                        # Calculate profit above initial balance
+                        profit_above_initial = balance - initial_balance
+                        # Save 10% of the profit
+                        save_amount = profit_above_initial * 0.10
+                        savings_account += save_amount
+                        balance -= save_amount
+                        
+                        # Update trade with savings info
+                        trade['savings_amount'] = save_amount
+                        trade['savings_account'] = savings_account
+                        trade['balance_after_savings'] = balance
+                    
                     position = None
             
             # Look for new signals if no position
@@ -214,18 +232,19 @@ class Backtester:
                                 }
                         
                         # Calculate take profit that compensates for trading fees
-                        reward_ratio = 3  # Default 1:3 RR, can be made configurable
+                        # Use provided reward_ratio parameter instead of hardcoded value
                         adjusted_take_profit = self._calculate_take_profit_with_fees(
-                            current_price, signal['stop_loss'], reward_ratio, scaled_position_size
+                            current_price, signal['stop_loss'], reward_ratio, scaled_position_size, symbol_trading_fee_info
                         )
                         
+                        # Override strategy's take profit with calculated one based on reward_ratio
                         position = {
                             'side': signal['signal'],
                             'entry_price': current_price,
                             'entry_time': current_time,
                             'strategy': signal['strategy'],
                             'stop_loss': signal['stop_loss'],
-                            'take_profit': adjusted_take_profit,
+                            'take_profit': adjusted_take_profit,  # Use calculated TP, not strategy's TP
                             'position_size': scaled_position_size,
                             'scaling_info': scaling_info
                         }
@@ -245,7 +264,7 @@ class Backtester:
         # Close any remaining position at the end (only if account not blown)
         if position is not None and balance > 0:
             final_price = data.iloc[-1]['close']
-            pnl = self._calculate_pnl(position, final_price)
+            pnl = self._calculate_pnl(position, final_price, symbol_trading_fee_info)
             balance += pnl
             
             # Count as stop loss for remaining position
@@ -280,6 +299,11 @@ class Backtester:
                 if scaling['enabled']:
                     scaling_details = f" (Scale: {scaling['multiplier']}x, R:R: {scaling['current_rr']:.1f})"
             
+            # Calculate savings info for this trade
+            savings_info = ''
+            if trade.get('savings_amount'):
+                savings_info = f" (Saved: ${trade['savings_amount']:.2f})"
+            
             balance_history.append({
                 'date': trade['exit_time'].strftime('%Y-%m-%d %H:%M'),
                 'type': trade['side'].upper(),
@@ -290,7 +314,7 @@ class Backtester:
                 'position_size': trade['position_size'],
                 'pnl': trade['pnl'],
                 'balance': trade['balance'],
-                'scaling_details': scaling_details
+                'scaling_details': scaling_details + savings_info
             })
         
         # Check if account was blown
@@ -302,6 +326,8 @@ class Backtester:
             'metrics': metrics,
             'exit_counters': exit_counters,
             'final_balance': balance,
+            'savings_account': savings_account,
+            'total_wealth': balance + savings_account,
             'total_return': ((balance - initial_balance) / initial_balance) * 100,
             'balance_history': balance_history,
             'account_blown': account_blown
@@ -394,7 +420,7 @@ class Backtester:
         
         return data
     
-    def _get_signal(self, data, strategy_name, timeframe='1h'):
+    def _get_signal(self, data, strategy_name, timeframe='1h', is_reverse=False):
         """Get trading signal from specified strategy"""
         if strategy_name == 'all':
             return self.strategies.get_best_signal(data, timeframe)
@@ -410,31 +436,7 @@ class Backtester:
             
             # Apply reverse signal logic if enabled
             if reverse_signal and signal['signal'] != 'no_signal':
-                # Swap signal direction
-                if signal['signal'] == 'long':
-                    signal['signal'] = 'short'
-                else:
-                    signal['signal'] = 'long'
-                
-                # For ema_rsi strategy, maintain 1R = $10 by recalculating stop loss
-                entry_price = signal['entry_price']
-                if signal['signal'] == 'long':
-                    # Long: stop loss = entry_price - 10
-                    signal['stop_loss'] = entry_price - 10
-                else:
-                    # Short: stop loss = entry_price + 10
-                    signal['stop_loss'] = entry_price + 10
-                
-                # Recalculate take profit based on new stop loss
-                risk = abs(entry_price - signal['stop_loss'])  # Should be $10
-                if signal['signal'] == 'long':
-                    signal['take_profit'] = entry_price + (risk * 3)  # 1:3 RR
-                else:
-                    signal['take_profit'] = entry_price - (risk * 3)  # 1:3 RR
-                
-                # Update indicators
-                signal['indicators']['signal_reversed'] = True
-                signal['indicators']['original_signal'] = 'long' if signal['signal'] == 'short' else 'short'
+                signal = self._apply_reverse_signal(signal, strategy_name)
             
             return signal
         elif strategy_name == 'bollinger_stochastic' or strategy_name.startswith('bollinger_stochastic_'):
@@ -463,6 +465,9 @@ class Backtester:
                 signal['take_profit'] = original_stop_loss
                 
                 # Update indicators
+                # Update indicators (ensure indicators dict exists)
+                if 'indicators' not in signal:
+                    signal['indicators'] = {}
                 signal['indicators']['signal_reversed'] = True
                 signal['indicators']['original_signal'] = 'long' if signal['signal'] == 'short' else 'short'
             
@@ -493,6 +498,9 @@ class Backtester:
                 signal['take_profit'] = original_stop_loss
                 
                 # Update indicators
+                # Update indicators (ensure indicators dict exists)
+                if 'indicators' not in signal:
+                    signal['indicators'] = {}
                 signal['indicators']['signal_reversed'] = True
                 signal['indicators']['original_signal'] = 'long' if signal['signal'] == 'short' else 'short'
             
@@ -523,6 +531,9 @@ class Backtester:
                 signal['take_profit'] = original_stop_loss
                 
                 # Update indicators
+                # Update indicators (ensure indicators dict exists)
+                if 'indicators' not in signal:
+                    signal['indicators'] = {}
                 signal['indicators']['signal_reversed'] = True
                 signal['indicators']['original_signal'] = 'long' if signal['signal'] == 'short' else 'short'
             
@@ -553,6 +564,9 @@ class Backtester:
                 signal['take_profit'] = original_stop_loss
                 
                 # Update indicators
+                # Update indicators (ensure indicators dict exists)
+                if 'indicators' not in signal:
+                    signal['indicators'] = {}
                 signal['indicators']['signal_reversed'] = True
                 signal['indicators']['original_signal'] = 'long' if signal['signal'] == 'short' else 'short'
             
@@ -583,6 +597,9 @@ class Backtester:
                 signal['take_profit'] = original_stop_loss
                 
                 # Update indicators
+                # Update indicators (ensure indicators dict exists)
+                if 'indicators' not in signal:
+                    signal['indicators'] = {}
                 signal['indicators']['signal_reversed'] = True
                 signal['indicators']['original_signal'] = 'long' if signal['signal'] == 'short' else 'short'
             
@@ -613,6 +630,9 @@ class Backtester:
                 signal['take_profit'] = original_stop_loss
                 
                 # Update indicators
+                # Update indicators (ensure indicators dict exists)
+                if 'indicators' not in signal:
+                    signal['indicators'] = {}
                 signal['indicators']['signal_reversed'] = True
                 signal['indicators']['original_signal'] = 'long' if signal['signal'] == 'short' else 'short'
             
@@ -644,6 +664,9 @@ class Backtester:
                 signal['take_profit'] = original_stop_loss
                 
                 # Update indicators
+                # Update indicators (ensure indicators dict exists)
+                if 'indicators' not in signal:
+                    signal['indicators'] = {}
                 signal['indicators']['signal_reversed'] = True
                 signal['indicators']['original_signal'] = 'long' if signal['signal'] == 'short' else 'short'
             
@@ -692,6 +715,9 @@ class Backtester:
                 signal['take_profit'] = original_stop_loss
                 
                 # Update indicators
+                # Update indicators (ensure indicators dict exists)
+                if 'indicators' not in signal:
+                    signal['indicators'] = {}
                 signal['indicators']['signal_reversed'] = True
                 signal['indicators']['original_signal'] = 'long' if signal['signal'] == 'short' else 'short'
             
@@ -722,6 +748,9 @@ class Backtester:
                 signal['take_profit'] = original_stop_loss
                 
                 # Update indicators
+                # Update indicators (ensure indicators dict exists)
+                if 'indicators' not in signal:
+                    signal['indicators'] = {}
                 signal['indicators']['signal_reversed'] = True
                 signal['indicators']['original_signal'] = 'long' if signal['signal'] == 'short' else 'short'
             
@@ -752,6 +781,9 @@ class Backtester:
                 signal['take_profit'] = original_stop_loss
                 
                 # Update indicators
+                # Update indicators (ensure indicators dict exists)
+                if 'indicators' not in signal:
+                    signal['indicators'] = {}
                 signal['indicators']['signal_reversed'] = True
                 signal['indicators']['original_signal'] = 'long' if signal['signal'] == 'short' else 'short'
             
@@ -782,6 +814,9 @@ class Backtester:
                 signal['take_profit'] = original_stop_loss
                 
                 # Update indicators
+                # Update indicators (ensure indicators dict exists)
+                if 'indicators' not in signal:
+                    signal['indicators'] = {}
                 signal['indicators']['signal_reversed'] = True
                 signal['indicators']['original_signal'] = 'long' if signal['signal'] == 'short' else 'short'
             
@@ -812,6 +847,9 @@ class Backtester:
                 signal['take_profit'] = original_stop_loss
                 
                 # Update indicators
+                # Update indicators (ensure indicators dict exists)
+                if 'indicators' not in signal:
+                    signal['indicators'] = {}
                 signal['indicators']['signal_reversed'] = True
                 signal['indicators']['original_signal'] = 'long' if signal['signal'] == 'short' else 'short'
             
@@ -865,6 +903,9 @@ class Backtester:
                     signal['take_profit'] = original_stop_loss
                     
                     # Update indicators
+                # Update indicators (ensure indicators dict exists)
+                if 'indicators' not in signal:
+                    signal['indicators'] = {}
                     signal['indicators']['signal_reversed'] = True
                     signal['indicators']['original_signal'] = 'long' if signal['signal'] == 'short' else 'short'
                 
@@ -918,6 +959,9 @@ class Backtester:
                     signal['take_profit'] = original_stop_loss
                     
                     # Update indicators
+                # Update indicators (ensure indicators dict exists)
+                if 'indicators' not in signal:
+                    signal['indicators'] = {}
                     signal['indicators']['signal_reversed'] = True
                     signal['indicators']['original_signal'] = 'long' if signal['signal'] == 'short' else 'short'
                 
@@ -941,6 +985,9 @@ class Backtester:
                     signal['take_profit'] = original_stop_loss
                     
                     # Update indicators
+                # Update indicators (ensure indicators dict exists)
+                if 'indicators' not in signal:
+                    signal['indicators'] = {}
                     signal['indicators']['signal_reversed'] = True
                     signal['indicators']['original_signal'] = 'long' if signal['signal'] == 'short' else 'short'
                 
@@ -975,6 +1022,9 @@ class Backtester:
                 signal['take_profit'] = original_stop_loss
                 
                 # Update indicators
+                # Update indicators (ensure indicators dict exists)
+                if 'indicators' not in signal:
+                    signal['indicators'] = {}
                 signal['indicators']['signal_reversed'] = True
                 signal['indicators']['original_signal'] = 'long' if signal['signal'] == 'short' else 'short'
             
@@ -1041,6 +1091,9 @@ class Backtester:
                 signal['take_profit'] = original_stop_loss
                 
                 # Update indicators
+                # Update indicators (ensure indicators dict exists)
+                if 'indicators' not in signal:
+                    signal['indicators'] = {}
                 signal['indicators']['signal_reversed'] = True
                 signal['indicators']['original_signal'] = 'long' if signal['signal'] == 'short' else 'short'
             
@@ -1078,15 +1131,9 @@ class Backtester:
         # Calculate position size to risk exactly the specified amount
         position_size = risk_amount / price_diff
         
-        # For ema_rsi strategy or always_lose_strategy, ensure exact risk calculation by not applying position size limits
-        if 'ema_rsi_strategy' in signal.get('strategy', '') or signal.get('strategy') == 'always_lose_strategy':
-            return position_size
-        
-        # Apply position size limits for other strategies
-        max_position_value = balance * self.config.MAX_POSITION_SIZE
-        max_position_size = max_position_value / entry_price
-        
-        return min(position_size, max_position_size)
+        # For all strategies, ensure exact risk calculation by not applying position size limits
+        # This ensures 1R = fixed amount regardless of strategy
+        return position_size
     
     def _should_close_position(self, position, current_price, current_data):
         """Check if position should be closed with trailing stop support"""
@@ -1133,23 +1180,36 @@ class Backtester:
         
         return False
     
-    def _calculate_pnl(self, position, current_price):
+    def _calculate_pnl(self, position, current_price, symbol_trading_fee_info=None):
         """Calculate PnL for a position including trading fees"""
         if position['side'] == 'long':
             pnl = (current_price - position['entry_price']) * position['position_size']
         else:
             pnl = (position['entry_price'] - current_price) * position['position_size']
         
-        # Calculate trading fees: configurable rate of entry position value
+        # Calculate trading fees based on fee type
         entry_value = position['entry_price'] * position['position_size']
-        trading_fee = entry_value * self.config.TRADING_FEE_RATE
+        
+        if symbol_trading_fee_info:
+            fee_type = symbol_trading_fee_info.get('fee_type', 'percentage')
+            if fee_type == 'fixed':
+                # Fixed fee per BTC
+                fee_per_btc = symbol_trading_fee_info.get('fee_per_btc', 0.0)
+                trading_fee = position['position_size'] * fee_per_btc
+            else:
+                # Percentage fee
+                fee_rate = symbol_trading_fee_info.get('fee_rate', 0.0)
+                trading_fee = entry_value * fee_rate
+        else:
+            # Fallback to default
+            trading_fee = entry_value * self.config.TRADING_FEE_RATE
         
         # Subtract trading fee from PnL
         pnl_after_fees = pnl - trading_fee
         
         return pnl_after_fees
     
-    def _calculate_take_profit_with_fees(self, entry_price, stop_loss, reward_ratio, position_size):
+    def _calculate_take_profit_with_fees(self, entry_price, stop_loss, reward_ratio, position_size, symbol_trading_fee_info=None):
         """
         Calculate take profit that compensates for trading fees
         """
@@ -1158,9 +1218,22 @@ class Backtester:
         # Calculate gross profit needed for desired R:R
         gross_profit_needed = risk * reward_ratio
         
-        # Calculate trading fee
+        # Calculate trading fee based on fee type
         entry_value = entry_price * position_size
-        trading_fee = entry_value * self.config.TRADING_FEE_RATE
+        
+        if symbol_trading_fee_info:
+            fee_type = symbol_trading_fee_info.get('fee_type', 'percentage')
+            if fee_type == 'fixed':
+                # Fixed fee per BTC
+                fee_per_btc = symbol_trading_fee_info.get('fee_per_btc', 0.0)
+                trading_fee = position_size * fee_per_btc
+            else:
+                # Percentage fee
+                fee_rate = symbol_trading_fee_info.get('fee_rate', 0.0)
+                trading_fee = entry_value * fee_rate
+        else:
+            # Fallback to default
+            trading_fee = entry_value * self.config.TRADING_FEE_RATE
         
         # Net profit needed = gross profit - trading fee
         net_profit_needed = gross_profit_needed - trading_fee
@@ -1173,11 +1246,49 @@ class Backtester:
         
         # Calculate take profit price
         if entry_price > stop_loss:  # Long position
-            take_profit = entry_price + (net_profit_needed / position_size)
+            take_profit = entry_price + (risk * reward_ratio)
         else:  # Short position
-            take_profit = entry_price - (net_profit_needed / position_size)
+            take_profit = entry_price - (risk * reward_ratio)
         
         return take_profit
+    
+    def _apply_reverse_signal(self, signal, strategy_name):
+        """
+        Apply reverse signal logic (common for all strategies)
+        """
+        if signal['signal'] == 'no_signal':
+            return signal
+        
+        # Swap signal direction
+        if signal['signal'] == 'long':
+            signal['signal'] = 'short'
+        else:
+            signal['signal'] = 'long'
+        
+        # Special handling for strategies with fixed dollar stop loss (maintain 1R = $10)
+        if (strategy_name == 'ema_rsi' or strategy_name.startswith('ema_rsi') or 
+            strategy_name == 'ichimoku' or strategy_name.startswith('ichimoku')):
+            entry_price = signal['entry_price']
+            if signal['signal'] == 'long':
+                signal['stop_loss'] = entry_price - 10  # $10 below entry
+                signal['take_profit'] = entry_price + 30  # 1:3 RR
+            else:
+                signal['stop_loss'] = entry_price + 10  # $10 above entry
+                signal['take_profit'] = entry_price - 30  # 1:3 RR
+        else:
+            # For other strategies, swap stop loss and take profit
+            original_stop_loss = signal['stop_loss']
+            original_take_profit = signal['take_profit']
+            signal['stop_loss'] = original_take_profit
+            signal['take_profit'] = original_stop_loss
+        
+        # Update indicators (ensure indicators dict exists)
+        if 'indicators' not in signal:
+            signal['indicators'] = {}
+        signal['indicators']['signal_reversed'] = True
+        signal['indicators']['original_signal'] = 'long' if signal['signal'] == 'short' else 'short'
+        
+        return signal
     
     def _get_position_value(self, position, current_price):
         """Get current value of position"""

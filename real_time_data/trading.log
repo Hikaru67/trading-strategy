@@ -1,0 +1,54 @@
+2025-08-24 14:38:24,633 - INFO - === Trading Cycle Started at 2025-08-24 14:38:24.633350 ===
+2025-08-24 14:38:24,633 - INFO - Fetching fresh data for SUIUSDT 5m
+2025-08-24 14:38:27,139 - INFO - Data cached: SUIUSDT_5m_20250801_100000_20250801_140000.pkl
+2025-08-24 14:38:27,203 - INFO - Current SUIUSDT price: $3.4468
+2025-08-24 14:38:27,204 - INFO - Cycle Summary - Balance: $1000.00, Savings: $0.00, Total Wealth: $1000.00, Return: 0.00%, Position: None
+2025-08-24 14:38:27,204 - INFO - === Trading Cycle Completed ===
+2025-08-24 14:38:27,204 - INFO - === Trading Cycle Started at 2025-08-24 14:38:27.204464 ===
+2025-08-24 14:38:27,204 - INFO - Fetching fresh data for SUIUSDT 5m
+2025-08-24 14:38:27,359 - INFO - Data cached: SUIUSDT_5m_20250802_080000_20250802_120000.pkl
+2025-08-24 14:38:27,396 - INFO - Current SUIUSDT price: $3.4066
+2025-08-24 14:38:27,396 - INFO - Cycle Summary - Balance: $1000.00, Savings: $0.00, Total Wealth: $1000.00, Return: 0.00%, Position: None
+2025-08-24 14:38:27,397 - INFO - === Trading Cycle Completed ===
+2025-08-24 14:38:27,397 - INFO - === Trading Cycle Started at 2025-08-24 14:38:27.397112 ===
+2025-08-24 14:38:27,397 - INFO - Fetching fresh data for SUIUSDT 5m
+2025-08-24 14:38:27,543 - INFO - Data cached: SUIUSDT_5m_20250803_060000_20250803_100000.pkl
+2025-08-24 14:38:27,581 - INFO - Current SUIUSDT price: $3.4419
+2025-08-24 14:38:27,581 - INFO - Cycle Summary - Balance: $1000.00, Savings: $0.00, Total Wealth: $1000.00, Return: 0.00%, Position: None
+2025-08-24 14:38:27,581 - INFO - === Trading Cycle Completed ===
+2025-08-24 14:38:27,581 - INFO - === Trading Cycle Started at 2025-08-24 14:38:27.581697 ===
+2025-08-24 14:38:27,581 - INFO - Fetching fresh data for SUIUSDT 5m
+2025-08-24 14:38:27,733 - INFO - Data cached: SUIUSDT_5m_20250804_040000_20250804_080000.pkl
+2025-08-24 14:38:27,774 - INFO - Current SUIUSDT price: $3.4976
+2025-08-24 14:38:27,774 - INFO - Cycle Summary - Balance: $1000.00, Savings: $0.00, Total Wealth: $1000.00, Return: 0.00%, Position: None
+2025-08-24 14:38:27,774 - INFO - === Trading Cycle Completed ===
+2025-08-24 14:38:27,775 - INFO - === Trading Cycle Started at 2025-08-24 14:38:27.775071 ===
+2025-08-24 14:38:27,775 - INFO - Fetching fresh data for SUIUSDT 5m
+2025-08-24 14:38:27,922 - INFO - Data cached: SUIUSDT_5m_20250805_020000_20250805_060000.pkl
+2025-08-24 14:38:27,961 - INFO - Current SUIUSDT price: $3.5100
+2025-08-24 14:38:27,962 - INFO - Cycle Summary - Balance: $1000.00, Savings: $0.00, Total Wealth: $1000.00, Return: 0.00%, Position: None
+2025-08-24 14:38:27,962 - INFO - === Trading Cycle Completed ===
+2025-08-24 14:38:33,977 - INFO - Loaded balance: $1000.00, Savings: $0.00
+2025-08-24 14:38:33,977 - INFO - Loaded 0 historical trades
+2025-08-24 14:38:33,977 - INFO - Loaded 5 equity points
+2025-08-24 14:38:40,991 - INFO - Loaded balance: $1000.00, Savings: $0.00
+2025-08-24 14:38:40,991 - INFO - Loaded 0 historical trades
+2025-08-24 14:38:40,991 - INFO - Loaded 5 equity points
+2025-08-24 14:46:00,124 - INFO - Loaded balance: $1000.00, Savings: $0.00
+2025-08-24 14:46:00,124 - INFO - Loaded 0 historical trades
+2025-08-24 14:46:00,124 - INFO - Loaded 5 equity points
+2025-08-24 14:46:14,394 - INFO - Loaded balance: $1000.00, Savings: $0.00
+2025-08-24 14:46:14,394 - INFO - Loaded 0 historical trades
+2025-08-24 14:46:14,394 - INFO - Loaded 5 equity points
+2025-08-24 14:46:14,410 - INFO - Loaded balance: $1000.00, Savings: $0.00
+2025-08-24 14:46:14,410 - INFO - Loaded 0 historical trades
+2025-08-24 14:46:14,411 - INFO - Loaded 5 equity points
+2025-08-24 14:46:14,431 - INFO - Loaded balance: $1000.00, Savings: $0.00
+2025-08-24 14:46:14,431 - INFO - Loaded 0 historical trades
+2025-08-24 14:46:14,431 - INFO - Loaded 5 equity points
+2025-08-24 14:47:37,794 - INFO - Loaded balance: $1000.00, Savings: $0.00
+2025-08-24 14:47:37,795 - INFO - Loaded 0 historical trades
+2025-08-24 14:47:37,795 - INFO - Loaded 5 equity points
+2025-08-24 14:48:06,639 - INFO - Loaded balance: $1000.00, Savings: $0.00
+2025-08-24 14:48:06,640 - INFO - Loaded 0 historical trades
+2025-08-24 14:48:06,640 - INFO - Loaded 6 equity points

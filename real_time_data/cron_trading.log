@@ -1,0 +1,101 @@
+2025-08-24 14:47:50,965 - INFO - 🔄 Starting scheduled trading job...
+2025-08-24 14:47:50,981 - INFO - Loaded balance: $1000.00, Savings: $0.00
+2025-08-24 14:47:50,981 - INFO - Loaded 0 historical trades
+2025-08-24 14:47:50,981 - INFO - Loaded 5 equity points
+2025-08-24 14:47:50,981 - INFO - === Trading Cycle Started at 2025-08-24 14:47:50.981673 ===
+2025-08-24 14:47:50,982 - INFO - Data loaded from cache: SUIUSDT_5m_20250810_080000_20250810_120000.pkl
+2025-08-24 14:47:50,982 - INFO - Using cached data for SUIUSDT 5m
+2025-08-24 14:47:51,032 - INFO - Current SUIUSDT price: $3.8100
+2025-08-24 14:47:51,033 - INFO - Cycle Summary - Balance: $1000.00, Savings: $0.00, Total Wealth: $1000.00, Return: 0.00%, Position: None
+2025-08-24 14:47:51,033 - INFO - === Trading Cycle Completed ===
+2025-08-24 14:47:51,033 - INFO - 📊 Trading Summary:
+2025-08-24 14:47:51,033 - INFO -    Balance: $1000.00
+2025-08-24 14:47:51,033 - INFO -    Savings: $0.00
+2025-08-24 14:47:51,033 - INFO -    Total Wealth: $1000.00
+2025-08-24 14:47:51,033 - INFO -    Return: 0.00%
+2025-08-24 14:47:51,033 - INFO -    Trades: 0
+2025-08-24 14:47:51,033 - INFO -    Win Rate: 0.0%
+2025-08-24 14:47:51,033 - INFO -    Position: None
+2025-08-24 14:47:51,033 - INFO - ✅ Trading job completed successfully
+2025-08-24 14:47:57,209 - INFO - Loaded balance: $1000.00, Savings: $0.00
+2025-08-24 14:47:57,210 - INFO - Loaded 0 historical trades
+2025-08-24 14:47:57,210 - INFO - Loaded 6 equity points
+2025-08-24 14:48:11,675 - INFO - 🔄 Starting scheduled trading job...
+2025-08-24 14:48:11,688 - INFO - Loaded balance: $1000.00, Savings: $0.00
+2025-08-24 14:48:11,688 - INFO - Loaded 0 historical trades
+2025-08-24 14:48:11,688 - INFO - Loaded 6 equity points
+2025-08-24 14:48:11,688 - INFO - === Trading Cycle Started at 2025-08-24 14:48:11.688575 ===
+2025-08-24 14:48:11,689 - INFO - Data loaded from cache: SUIUSDT_5m_20250810_080000_20250810_120000.pkl
+2025-08-24 14:48:11,689 - INFO - Using cached data for SUIUSDT 5m
+2025-08-24 14:48:11,732 - INFO - Current SUIUSDT price: $3.8100
+2025-08-24 14:48:11,733 - INFO - Cycle Summary - Balance: $1000.00, Savings: $0.00, Total Wealth: $1000.00, Return: 0.00%, Position: None
+2025-08-24 14:48:11,733 - INFO - === Trading Cycle Completed ===
+2025-08-24 14:48:11,733 - INFO - 📊 Trading Summary:
+2025-08-24 14:48:11,733 - INFO -    Balance: $1000.00
+2025-08-24 14:48:11,733 - INFO -    Savings: $0.00
+2025-08-24 14:48:11,733 - INFO -    Total Wealth: $1000.00
+2025-08-24 14:48:11,733 - INFO -    Return: 0.00%
+2025-08-24 14:48:11,733 - INFO -    Trades: 0
+2025-08-24 14:48:11,733 - INFO -    Win Rate: 0.0%
+2025-08-24 14:48:11,733 - INFO -    Position: None
+2025-08-24 14:48:11,733 - INFO - ✅ Trading job completed successfully
+2025-08-24 14:48:18,719 - INFO - Loaded balance: $1000.00, Savings: $0.00
+2025-08-24 14:48:18,720 - INFO - Loaded 0 historical trades
+2025-08-24 14:48:18,720 - INFO - Loaded 7 equity points
+2025-08-24 14:48:23,017 - INFO - 🔄 Starting scheduled trading job...
+2025-08-24 14:48:23,030 - INFO - Loaded balance: $1000.00, Savings: $0.00
+2025-08-24 14:48:23,030 - INFO - Loaded 0 historical trades
+2025-08-24 14:48:23,030 - INFO - Loaded 7 equity points
+2025-08-24 14:48:23,030 - INFO - === Trading Cycle Started at 2025-08-24 14:48:23.030396 ===
+2025-08-24 14:48:23,030 - INFO - Data loaded from cache: SUIUSDT_5m_20250810_080000_20250810_120000.pkl
+2025-08-24 14:48:23,030 - INFO - Using cached data for SUIUSDT 5m
+2025-08-24 14:48:23,084 - INFO - Current SUIUSDT price: $3.8100
+2025-08-24 14:48:23,084 - INFO - Cycle Summary - Balance: $1000.00, Savings: $0.00, Total Wealth: $1000.00, Return: 0.00%, Position: None
+2025-08-24 14:48:23,084 - INFO - === Trading Cycle Completed ===
+2025-08-24 14:48:23,085 - INFO - 📊 Trading Summary:
+2025-08-24 14:48:23,085 - INFO -    Balance: $1000.00
+2025-08-24 14:48:23,085 - INFO -    Savings: $0.00
+2025-08-24 14:48:23,085 - INFO -    Total Wealth: $1000.00
+2025-08-24 14:48:23,085 - INFO -    Return: 0.00%
+2025-08-24 14:48:23,085 - INFO -    Trades: 0
+2025-08-24 14:48:23,085 - INFO -    Win Rate: 0.0%
+2025-08-24 14:48:23,085 - INFO -    Position: None
+2025-08-24 14:48:23,085 - INFO - ✅ Trading job completed successfully
+2025-08-24 14:53:23,087 - INFO - 🔄 Starting scheduled trading job...
+2025-08-24 14:53:23,107 - INFO - Loaded balance: $1000.00, Savings: $0.00
+2025-08-24 14:53:23,107 - INFO - Loaded 0 historical trades
+2025-08-24 14:53:23,107 - INFO - Loaded 8 equity points
+2025-08-24 14:53:23,107 - INFO - === Trading Cycle Started at 2025-08-24 14:53:23.107851 ===
+2025-08-24 14:53:23,108 - INFO - Data loaded from cache: SUIUSDT_5m_20250810_080000_20250810_120000.pkl
+2025-08-24 14:53:23,108 - INFO - Using cached data for SUIUSDT 5m
+2025-08-24 14:53:23,173 - INFO - Current SUIUSDT price: $3.8100
+2025-08-24 14:53:23,173 - INFO - Cycle Summary - Balance: $1000.00, Savings: $0.00, Total Wealth: $1000.00, Return: 0.00%, Position: None
+2025-08-24 14:53:23,174 - INFO - === Trading Cycle Completed ===
+2025-08-24 14:53:23,174 - INFO - 📊 Trading Summary:
+2025-08-24 14:53:23,174 - INFO -    Balance: $1000.00
+2025-08-24 14:53:23,174 - INFO -    Savings: $0.00
+2025-08-24 14:53:23,174 - INFO -    Total Wealth: $1000.00
+2025-08-24 14:53:23,174 - INFO -    Return: 0.00%
+2025-08-24 14:53:23,174 - INFO -    Trades: 0
+2025-08-24 14:53:23,174 - INFO -    Win Rate: 0.0%
+2025-08-24 14:53:23,174 - INFO -    Position: None
+2025-08-24 14:53:23,174 - INFO - ✅ Trading job completed successfully
+2025-08-24 14:58:23,176 - INFO - 🔄 Starting scheduled trading job...
+2025-08-24 14:58:23,189 - INFO - Loaded balance: $1000.00, Savings: $0.00
+2025-08-24 14:58:23,189 - INFO - Loaded 0 historical trades
+2025-08-24 14:58:23,189 - INFO - Loaded 9 equity points
+2025-08-24 14:58:23,189 - INFO - === Trading Cycle Started at 2025-08-24 14:58:23.189860 ===
+2025-08-24 14:58:23,190 - INFO - Data loaded from cache: SUIUSDT_5m_20250810_080000_20250810_120000.pkl
+2025-08-24 14:58:23,190 - INFO - Using cached data for SUIUSDT 5m
+2025-08-24 14:58:23,231 - INFO - Current SUIUSDT price: $3.8100
+2025-08-24 14:58:23,231 - INFO - Cycle Summary - Balance: $1000.00, Savings: $0.00, Total Wealth: $1000.00, Return: 0.00%, Position: None
+2025-08-24 14:58:23,231 - INFO - === Trading Cycle Completed ===
+2025-08-24 14:58:23,231 - INFO - 📊 Trading Summary:
+2025-08-24 14:58:23,231 - INFO -    Balance: $1000.00
+2025-08-24 14:58:23,231 - INFO -    Savings: $0.00
+2025-08-24 14:58:23,232 - INFO -    Total Wealth: $1000.00
+2025-08-24 14:58:23,232 - INFO -    Return: 0.00%
+2025-08-24 14:58:23,232 - INFO -    Trades: 0
+2025-08-24 14:58:23,232 - INFO -    Win Rate: 0.0%
+2025-08-24 14:58:23,232 - INFO -    Position: None
+2025-08-24 14:58:23,232 - INFO - ✅ Trading job completed successfully

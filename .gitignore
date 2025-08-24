@@ -1,2 +1,5 @@
 .env
 charts
+histories
+__pycache__/
+*.pyc
