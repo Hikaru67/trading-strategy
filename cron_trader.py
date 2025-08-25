@@ -31,11 +31,12 @@ def run_trading_job():
     try:
         logging.info("🔄 Starting scheduled trading job...")
         
-        # Initialize trader
+        # Initialize trader with no fees
         trader = RealTimeTrader(
             symbol='SUIUSDT',
             initial_balance=1000,
-            strategy_name='ultra_simple_strategy'
+            strategy_name='ultra_simple_strategy',
+            no_fees=True
         )
         
         # Run trading cycle
@@ -65,7 +66,8 @@ def print_status():
         trader = RealTimeTrader(
             symbol='SUIUSDT',
             initial_balance=1000,
-            strategy_name='ultra_simple_strategy'
+            strategy_name='ultra_simple_strategy',
+            no_fees=True
         )
         
         summary = trader.get_trading_summary()
@@ -98,20 +100,51 @@ def main():
     setup_logging()
     
     print("🤖 Starting Real-Time Trading System...")
-    print("📅 Trading will run every 5 minutes")
+    print("📅 Trading will run at minute 0, 5, 10, 15... (M5 candle close)")
     print("🛑 Press Ctrl+C to stop")
     
-    # Schedule trading job every 5 minutes
-    schedule.every(5).minutes.do(run_trading_job)
+    # Schedule trading job at specific minutes (0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55)
+    schedule.every().hour.at(":00").do(run_trading_job)
+    schedule.every().hour.at(":05").do(run_trading_job)
+    schedule.every().hour.at(":10").do(run_trading_job)
+    schedule.every().hour.at(":15").do(run_trading_job)
+    schedule.every().hour.at(":20").do(run_trading_job)
+    schedule.every().hour.at(":25").do(run_trading_job)
+    schedule.every().hour.at(":30").do(run_trading_job)
+    schedule.every().hour.at(":35").do(run_trading_job)
+    schedule.every().hour.at(":40").do(run_trading_job)
+    schedule.every().hour.at(":45").do(run_trading_job)
+    schedule.every().hour.at(":50").do(run_trading_job)
+    schedule.every().hour.at(":55").do(run_trading_job)
     
-    # Run initial job
-    run_trading_job()
+    # Calculate next run time
+    now = datetime.now()
+    current_minute = now.minute
+    next_minute = ((current_minute // 5) + 1) * 5
+    if next_minute >= 60:
+        next_minute = 0
+        next_hour = now.hour + 1
+    else:
+        next_hour = now.hour
+    
+    next_run_time = now.replace(hour=next_hour, minute=next_minute, second=0, microsecond=0)
+    time_until_next = (next_run_time - now).total_seconds()
+    
+    print(f"⏰ Next run at: {next_run_time.strftime('%H:%M:%S')}")
+    print(f"⏳ Waiting {time_until_next:.0f} seconds...")
+    
+    # Run initial job if we're at the right minute
+    if current_minute % 5 == 0:
+        print("🚀 Running initial job (current minute is aligned with M5)")
+        run_trading_job()
+    else:
+        print("⏸️  Skipping initial job (waiting for next M5 alignment)")
     
     # Keep running
     try:
         while True:
             schedule.run_pending()
-            time.sleep(30)  # Check every 30 seconds
+            time.sleep(10)  # Check every 10 seconds for more precise timing
             
     except KeyboardInterrupt:
         print("\n🛑 Stopping trading system...")

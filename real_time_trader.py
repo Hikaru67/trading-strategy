@@ -15,10 +15,11 @@ from backtest import Backtester
 from config import TradingConfig
 
 class RealTimeTrader:
-    def __init__(self, symbol='SUIUSDT', initial_balance=1000, strategy_name='ultra_simple_strategy'):
+    def __init__(self, symbol='SUIUSDT', initial_balance=1000, strategy_name='ultra_simple_strategy', no_fees=False):
         self.symbol = symbol
         self.initial_balance = initial_balance
         self.strategy_name = strategy_name
+        self.no_fees = no_fees
         self.config = TradingConfig()
         
         # Initialize backtester
@@ -113,9 +114,12 @@ class RealTimeTrader:
     def get_current_market_data(self, timeframe='5m', limit=100):
         """Get current market data (demo version - will be replaced with real API)"""
         try:
-            # For demo, we'll use historical data from a period we know has data
-            end_date = datetime(2025, 8, 10, 12, 0, 0)  # Use known data period
-            start_date = end_date - timedelta(hours=4)
+            # For demo, use a fixed period that we know has cached data
+            # This simulates getting real-time data
+            end_date = datetime(2025, 8, 24, 23, 55, 0)  # Use a time we know has data
+            start_date = datetime(2025, 8, 24, 20, 0, 0)  # 4 hours before
+            
+            logging.info(f"Demo mode: Using cached data from {start_date} to {end_date}")
             
             data = self.backtester._fetch_historical_data(
                 self.symbol, start_date, end_date, timeframe
@@ -125,8 +129,28 @@ class RealTimeTrader:
                 logging.error("No market data available")
                 return None
             
-            # Add indicators
-            data = self.backtester._add_indicators(data)
+            # Log the latest candle info
+            if not data.empty:
+                latest_candle = data.iloc[-1]
+                latest_time = latest_candle.name
+                logging.info(f"Latest candle: {latest_time} - O:{latest_candle['open']:.4f} H:{latest_candle['high']:.4f} L:{latest_candle['low']:.4f} C:{latest_candle['close']:.4f}")
+            
+            # Add basic indicators only (avoid complex indicators that might cause index errors)
+            try:
+                # Add only essential indicators for ultra_simple_strategy
+                if not data.empty and len(data) >= 2:
+                    # Basic indicators that ultra_simple_strategy needs
+                    data['ema_20'] = self.backtester.indicators.calculate_ema(data['close'], 20)
+                    data['ema_50'] = self.backtester.indicators.calculate_ema(data['close'], 50)
+                    data['rsi'] = self.backtester.indicators.calculate_rsi(data['close'])
+                    
+                    # Fill NaN values
+                    data = data.ffill().bfill()
+                else:
+                    logging.warning(f"Data too short for indicators: {len(data)} candles")
+            except Exception as e:
+                logging.error(f"Error adding indicators: {e}")
+                # Continue without indicators if there's an error
             
             return data
             
@@ -176,9 +200,11 @@ class RealTimeTrader:
         else:
             pnl = (entry_price - exit_price) * position_size
         
-        # Apply trading fees (demo: 0.1%)
-        fee = abs(position_size * exit_price * 0.001)
-        pnl -= fee
+        # Apply trading fees (demo: 0.1%) - only if no_fees is False
+        fee = 0.0
+        if not self.no_fees:
+            fee = abs(position_size * exit_price * 0.001)
+            pnl -= fee
         
         # Update balance
         self.current_balance += pnl
@@ -231,14 +257,19 @@ class RealTimeTrader:
     def get_signal(self, data):
         """Get trading signal from strategy"""
         try:
-            if data.empty or len(data) < 50:
+            if data.empty or len(data) < 2:  # Need at least 2 candles for ultra_simple_strategy
                 return None
             
-            # Get latest data
-            current_data = data.iloc[-50:]  # Last 50 candles
+            # Get latest data (use all available data)
+            current_data = data
             
             # Get signal from strategy
             signal = self.backtester._get_signal(current_data, self.strategy_name, '5m')
+            
+            if signal:
+                logging.info(f"Signal generated: {signal.get('signal', 'None')}")
+            else:
+                logging.info("No signal generated")
             
             return signal
             

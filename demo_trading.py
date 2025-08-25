@@ -19,11 +19,12 @@ def demo_trading():
     print("🤖 DEMO TRADING SYSTEM")
     print("="*50)
     
-    # Initialize trader
+    # Initialize trader with no fees
     trader = RealTimeTrader(
         symbol='SUIUSDT',
         initial_balance=1000,
-        strategy_name='ultra_simple_strategy'
+        strategy_name='ultra_simple_strategy',
+        no_fees=True
     )
     
     # Test with different time periods to find signals
